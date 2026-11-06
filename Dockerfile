@@ -27,7 +27,7 @@ RUN python -c "import sys; assert sys.version_info[:2] == tuple(map(int, '${PYTH
 # Drop .git and directories serving never reads. runs/ stays: the default --run runs/kev reads it.
 RUN git clone ${KEV_REPO} /src/kev && git -C /src/kev checkout ${KEV_REF} \
     && rm -rf /src/kev/.git /src/kev/playground /src/kev/docs /src/kev/tests /src/kev/experiments /src/kev/evals
-RUN uv pip install /src/kev "flash-linear-attention==${FLA_VERSION}"
+RUN uv pip install "/src/kev[serve]" "flash-linear-attention==${FLA_VERSION}"
 
 RUN uv pip install --index-url ${TORCH_INDEX} torch --reinstall \
     && python -c "import torch; assert torch.version.cuda is not None, 'CPU-only torch: ' + torch.__version__; print(torch.__version__, torch.version.cuda)"
