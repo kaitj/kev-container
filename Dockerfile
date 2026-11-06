@@ -3,11 +3,13 @@ ARG TORCH_INDEX=https://download.pytorch.org/whl/cu130
 ARG PYTHON_VERSION=3.13
 ARG UV_VERSION=latest
 
+# uv binary. --from does not expand variables, so UV_VERSION goes through a named stage.
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+
 # ---- BUILDER: venv with CUDA torch and kev ----
 FROM docker.io/library/ubuntu:24.04 AS builder
 ARG TORCH_INDEX
 ARG PYTHON_VERSION
-ARG UV_VERSION
 ARG KEV_REPO=https://github.com/jaredpalmer/kev
 ARG KEV_REF=2074cc4
 # Must match the pin in kev/fused_qwen35.py. Check after cloning kev.
@@ -18,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /usr/local/bin/uv
+COPY --from=uv /uv /usr/local/bin/uv
 ENV UV_PYTHON_INSTALL_DIR=/opt/python UV_NO_CACHE=1
 RUN uv python install ${PYTHON_VERSION} && uv venv --python ${PYTHON_VERSION} /opt/venv
 ENV PATH=/opt/venv/bin:$PATH VIRTUAL_ENV=/opt/venv
