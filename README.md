@@ -13,13 +13,8 @@ Explicit platform:
     docker build --platform linux/amd64 -t kev:dev .
     docker build --platform linux/arm64 -t kev:dev .
 
-Cross-build arm64 from an x86_64 machine (QEMU emulation), then copy it to the arm64 host:
-
-    docker run --privileged --rm tonistiivi/binfmt --install arm64
-    docker buildx build --platform linux/arm64 -t kev:dev --load .
-    docker save kev:dev | ssh <host> docker load
-
-The build fails if torch has no CUDA (`torch.version.cuda is None`). Emulated builds only check the wheel, so run the CUDA check below on the target host.
+> [!WARNING]
+> The build fails if torch has no CUDA (`torch.version.cuda is None`). Run the CUDA check below on the target host.
 
 ## Run
 
